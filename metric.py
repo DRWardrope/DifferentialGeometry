@@ -1,4 +1,5 @@
-from numpy import diag, eye, reshape
+#from numpy import diag, eye,
+from numpy import einsum, eye, reshape
 
 class Metric:
     '''
@@ -19,7 +20,8 @@ class Metric:
             :param u, v: (m, n_dims) np.arrays, each representing m vectors
             :returns m, 1) u.v
         '''
-        return reshape(diag(u.T.dot(self.metric.dot(v))), (-1, 1))
+        return reshape(einsum("ij,ai,aj->a", self.metric, u, v), (-1, 1))
+#        return reshape(diag(u.T.dot(self.metric.dot(v))), (-1, 1))
 
 
 class EuclideanMetric(Metric):

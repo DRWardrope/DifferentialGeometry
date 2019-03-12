@@ -11,9 +11,13 @@ def test_distance():
     v = np.array([
                     [np.cos(0.5), np.sin(0.5)],
                     [np.cos(0.5), np.sin(0.5)],
-                    [np.cos(0.5.), np.sin(0.5)]
+                    [np.cos(0.5), np.sin(0.5)]
                 ])
-    expected = np.array([[0.5], [0.], [3.216814692820414]])
+    expected = np.array([[0.5], [0.], [3.066370614359173]])
 
     circle = Sphere(1)
+    print("")
+    print(u)
+    print(v)
+    print(circle.distance(u, v))
     assert_array_almost_equal(circle.distance(u, v), expected)

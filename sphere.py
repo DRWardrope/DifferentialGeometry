@@ -1,7 +1,7 @@
 #import numpy as np
 from manifold import Manifold
-from metrics import EuclideanMetric
-from np import arccos
+from metric import EuclideanMetric
+from numpy import arccos
 
 class Sphere(Manifold):
     '''
@@ -14,7 +14,7 @@ class Sphere(Manifold):
         :param n_dims: dimensions of the manifold
         '''
         self.n_dims = n_dims
-        self.metric = EuclideanMetric(n_dims)
+        self.metric = EuclideanMetric(n_dims+1)
 
     def distance(self, u, v):
         '''
