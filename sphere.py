@@ -58,6 +58,8 @@ class Sphere(Manifold):
         :return: (m, n_dims) np.array, m points on the hypersphere along the
                 geodesic chosen by v_TpS, from point
         '''
+        # todo: check whether vector is in tangent space
+
         norm_v_TpS = self.norm(v_TpS)
         # If v_TpS has zero norm, return the original point.
         # Correct behaviour and avoids division by zero in following calculation
