@@ -1,4 +1,4 @@
-from numpy import finfo, float64, where, zeros_like
+from numpy import finfo, float64, isclose, logical_and, maximum, where, zeros_like
 
 class Manifold:
     '''
@@ -46,22 +46,18 @@ class Manifold:
         :return: (m, n_dims) np.array, m vectors in tangent spaces of point0,
                 that would yield point1 if inserted in exponential map
         '''
-        print("point0 = ", point0)
-        print("point1 = ", point1)
         dot01 = self.metric.dot(point0, point1)
-        v_Tp0M = point1 - dot01*point0
-        print("v_Tp0M = ", v_Tp0M)
+        v_Tp0M = point1 + dot01*point0
         dist = self.distance(point0, point1)
-        print("dist = ", dist)
         norm_v_Tp0M = self.metric.norm(v_Tp0M)
-        print("||v_Tp0M|| = ", norm_v_Tp0M)
 
-        # If v_TpS has zero norm, return the original point.
-        # Correct behaviour and avoids division by zero in following calculation
+        # If v_Tp0M has zero norm, return the original point.
+        v_Tp0M_is_good = norm_v_Tp0M > finfo(float64).eps
+            #self.is_in_tangent_space(point0, v_Tp0M)
         return where(
-                        norm_v_Tp0M < finfo(float64).eps,
+                        v_Tp0M_is_good,
+                        v_Tp0M*(dist/norm_v_Tp0M),
                         v_Tp0M,
-                        v_Tp0M*dist/norm_v_Tp0M,
                      )
     def is_on_manifold(self, point):
         '''
@@ -81,7 +77,7 @@ class Manifold:
         :return: (m, 1) np.array of booleans
         '''
         dot_pv = self.metric.dot(point, vector)
-        return dot_pv == zeros_like(dot_pv)
+        return isclose(dot_pv, zeros_like(dot_pv))
 
     def project_to_tangent_space(self, point, vector):
         '''

@@ -1,6 +1,6 @@
 from hyperboloid import Hyperboloid
 import numpy as np
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 
 def test_is_on_manifold():
@@ -117,95 +117,87 @@ def test_exponential_map():
     print(expected)
     assert_array_almost_equal(hyperb.exponential_map(p, v), expected)
 
-# def test_logarithmic_map():
-#     p0 = np.array([
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(1), np.sinh(1)],
-#                     [np.cosh(1), np.sinh(1)],
-#                 ])
-#     p1 = np.array([
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(1.), np.sinh(1.)],
-#                     [np.cosh(-1.), np.sinh(-1.)],
-#                     [np.cosh(-np.pi), np.sinh(-np.pi)]
-#     ])
-#     expected = np.array([
-#                         [0.,         0.],
-#                         [0.,         0.25*np.pi],
-#                         [0.25*np.pi, 0.],
-#                         [0.,         0.25*np.pi]
-#     ])
-#
-#     hyperb = Hyperboloid(1)
-#     print("")
-#     print(hyperb.logarithmic_map(p0, p1))
-#     print(expected)
-#     assert_array_almost_equal(hyperb.logarithmic_map(p0, p1), expected)
+def test_logarithmic_map():
+    # Leverage trusted exponential map to verify logarithmic map
+    p0 = np.array([
+                    [np.cosh(0.), np.sinh(0.)],
+                    [np.cosh(0.), np.sinh(0.)],
+                    [np.cosh(1), np.sinh(1)],
+                    [np.cosh(1), np.sinh(1)],
+                ])
+    p1 = np.array([
+                    [np.cosh(0.), np.sinh(0.)],
+                    [np.cosh(1.), np.sinh(1.)],
+                    [np.cosh(-1.), np.sinh(-1.)],
+                    [np.cosh(-np.pi), np.sinh(-np.pi)]
+    ])
 
-# def test__pole_ladder_transport():
-#     p0 = np.array([
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.5*np.pi), np.sinh(0.5*np.pi)],
-#                     [np.cosh(np.pi), np.sinh(np.pi)]
-#                 ])
-#     p1 = np.array([
-#                     [1., 0.],
-#                     [1., 0.],
-#                     [0.707106781186548, 0.707106781186548],
-#                     [np.cosh(0.), np.sinh(0.)]
-#     ])
-#     v = np.array([
-#                         [0.,         0.],
-#                         [0.,         0.25*np.pi],
-#                         [1, 0.],
-#                         [0.,         0.25*np.pi]
-#     ])
-#     expected = np.array([
-#                         [0.,         0.],
-#                         [0.,         0.25*np.pi],
-#                         [0.707106781186548, -0.707106781186548],
-#                         [0.,         0.75*np.pi]
-#     ])
-#     # Care should be taken when pole transporting between antipodes in one step!
-#     # v seems to lengthen!
-#
-#     hyperb = Hyperboloid(1)
-#     print("")
-#     print(hyperb._pole_ladder_transport(v, p0, p1))
-#     assert_array_almost_equal(hyperb._pole_ladder_transport(v, p0, p1), expected)
-#
-# def test_parallel_transport():
-#     p0 = np.array([
-#         [np.cosh(0.), np.sinh(0.)],
-#         [np.cosh(0.), np.sinh(0.)],
-#         [np.cosh(0.5 * np.pi), np.sinh(0.5 * np.pi)],
-#         [np.cosh(np.pi), np.sinh(np.pi)]
-#     ])
-#     p1 = np.array([
-#         [1., 0.],
-#         [1., 0.],
-#         [0.707106781186548, 0.707106781186548],
-#         [np.cosh(0.), np.sinh(0.)]
-#     ])
-#     v = np.array([
-#         [0., 0.],
-#         [0., 0.25 * np.pi],
-#         [1, 0.],
-#         [0., 0.25 * np.pi]
-#     ])
-#     expected = np.array([
-#         [0., 0.],
-#         [0., 0.25 * np.pi],
-#         [0.707106781186548, -0.707106781186548],
-#         [0., 0.25 * np.pi]
-#     ])
-#     # Care should be taken when transporting to antipodes.
-#     # In this case, the sign of v_y is incorrect.
-#
-#     hyperb = Hyperboloid(1)
-#     print("")
-#     result = hyperb.parallel_transport(v, p0, p1)
-#     print(result)
-#     assert_array_almost_equal(result, expected)#, decimal=
+    hyperb = Hyperboloid(1)
+    vectors = hyperb.logarithmic_map(p0, p1)
+    p1_from_v = hyperb.exponential_map(p0, vectors)
+    assert_array_equal(
+                        hyperb.is_on_manifold(p1_from_v),
+                        np.ones((p1_from_v.shape[0], 1), dtype=bool)
+    )
+    assert_array_almost_equal(p1, p1_from_v)
+
+def test__pole_ladder_transport():
+    # Test relies on fact that parallel transporting vector from p0->p1->p0 along
+    # same path should yield the same vector in Tp0M
+    p0 = np.array([
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.5 * np.pi), np.sinh(0.5 * np.pi)],
+        [np.cosh(np.pi), np.sinh(np.pi)]
+    ])
+    p1 = np.array([
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(1.), np.sinh(1.)],
+        [np.cosh(-1.), np.sinh(-1.)],
+        [np.cosh(-np.pi), np.sinh(-np.pi)]
+    ])
+    v_Tp0M = np.array([
+        [0., 0.],
+        [0., 1.],
+        [0.478393040868114, 0.521606959131886],
+        [0.499066278634146, 0.500933721365854]
+    ])
+
+    hyperb = Hyperboloid(1)
+    print("")
+    v_Tp1M = hyperb._pole_ladder_transport(v_Tp0M, p0, p1)
+    print(v_Tp1M)
+    v_Tp0M_ptd = hyperb._pole_ladder_transport(v_Tp1M, p1, p0)
+    print(v_Tp0M_ptd)
+    assert_array_almost_equal(v_Tp0M, v_Tp0M_ptd)
+
+def test_parallel_transport():
+    # Test relies on fact that parallel transporting vector from p0->p1->p0 along
+    # same path should yield the same vector in Tp0M
+    p0 = np.array([
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.5 * np.pi), np.sinh(0.5 * np.pi)],
+        [np.cosh(np.pi), np.sinh(np.pi)]
+    ])
+    p1 = np.array([
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(1.), np.sinh(1.)],
+        [np.cosh(-1.), np.sinh(-1.)],
+        [np.cosh(-np.pi), np.sinh(-np.pi)]
+    ])
+    v_Tp0M = np.array([
+        [0., 0.],
+        [0., 1.],
+        [0.478393040868114, 0.521606959131886],
+        [0.499066278634146, 0.500933721365854]
+    ])
+
+    hyperb = Hyperboloid(1)
+    print("")
+    v_Tp1M = hyperb.parallel_transport(v_Tp0M, p0, p1)
+    print(v_Tp1M)
+    v_Tp0M_ptd = hyperb.parallel_transport(v_Tp1M, p1, p0)
+    print(v_Tp0M_ptd)
+    assert_array_almost_equal(v_Tp0M, v_Tp0M_ptd)
+

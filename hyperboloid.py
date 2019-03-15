@@ -93,9 +93,13 @@ class Hyperboloid(Manifold):
         :param n_steps: number of steps to break pole transport into
         :return: vec_Tp0M after parallel transport to point 1
         '''
-        dirn = logarithmic_map(point_0, point_1)
+        dirn = self.logarithmic_map(point_0, point_1)
         norm_dirn = self.metric.norm(dirn)
-        unit_dirn = dirn / norm_dirn
+        unit_dirn = where(
+                norm_dirn > finfo(float64).eps,
+                dirn / norm_dirn,
+                dirn
+        )
         parallel_comp = self.metric.dot(vec_Tp0M, unit_dirn)
         vec_Tp1M = vec_Tp0M + parallel_comp * (
                  sinh(norm_dirn) * point_0 + (cosh(norm_dirn) - 1.) * unit_dirn)
