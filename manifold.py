@@ -47,7 +47,8 @@ class Manifold:
                 that would yield point1 if inserted in exponential map
         '''
         dot01 = self.metric.dot(point0, point1)
-        v_Tp0M = point1 + dot01*point0
+        dot00 = self.metric.dot(point0, point0)
+        v_Tp0M = point1 - (dot01/dot00)*point0
         dist = self.distance(point0, point1)
         norm_v_Tp0M = self.metric.norm(v_Tp0M)
 
@@ -59,6 +60,7 @@ class Manifold:
                         v_Tp0M*(dist/norm_v_Tp0M),
                         v_Tp0M,
                      )
+
     def is_on_manifold(self, point):
         '''
         Determine whether point is in the set of manifold points

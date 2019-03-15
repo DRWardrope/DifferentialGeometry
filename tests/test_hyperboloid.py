@@ -62,7 +62,7 @@ def test_is_in_tangent_space():
         [False],
         [True],
         [True],
-        [False],
+        [True],
         [True],
     ])
     hyperb = Hyperboloid(1)
@@ -91,14 +91,20 @@ def test_project_to_tangent_space():
         [0.499066278634146, 0.500933721365854]
     ])
     hyperb = Hyperboloid(1)
-    assert_array_almost_equal(hyperb.project_to_tangent_space(p, v), expected)
+    v_TpM = hyperb.project_to_tangent_space(p, v)
+    assert_array_almost_equal(v_TpM, expected)
+    # projection(projection(v)) should equal projection(v)
+    assert_array_almost_equal(
+                                hyperb.project_to_tangent_space(p, v_TpM),
+                                expected
+    )
 
 def test_exponential_map():
     p = np.array([
                     [np.cosh(0.), np.sinh(0.)],
                     [np.cosh(0.), np.sinh(0.)],
                     [np.cosh(0.5*np.pi), np.sinh(0.5*np.pi)],
-                     [np.cosh(np.pi), np.sinh(np.pi)]
+              #      [np.cosh(np.pi), np.sinh(np.pi)]
                 ])
     v = np.array([
                     [0.,         0.],

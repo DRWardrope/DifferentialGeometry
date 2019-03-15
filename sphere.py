@@ -63,24 +63,25 @@ class Sphere(Manifold):
                      )
 
 
-#    def logarithmic_map(self, point0, point1):
-#        '''
-#        Inverse of exponential map
-#
-#        :param point0: (m, n_dims) np.array, representing m "base" points:
-#        :param point1: (m, n_dims) np.array, representing m "target" points
-#        :return: (m, n_dims) np.array, m vectors in tangent spaces of point0,
-#                that would yield point1 if inserted in exponential map
-#        '''
-#        dot01 = self.metric.dot(point0, point1)
-#        v_Tp0M = point1 - dot01*point0
-#        dist = self.distance(point0, point1)
-#        norm_v_Tp0M = self.metric.norm(v_Tp0M)
-#
-#        # If v_TpS has zero norm, return the original point.
-#        # Correct behaviour and avoids division by zero in following calculation
-#        return where(
-#                        norm_v_Tp0M < finfo(float).eps,
-#                        v_Tp0M,
-#                        v_Tp0M*dist/norm_v_Tp0M,
-#                     )
+def logarithmic_map(self, point0, point1):
+    '''
+    Inverse of exponential map
+
+    :param point0: (m, n_dims) np.array, representing m "base" points:
+    :param point1: (m, n_dims) np.array, representing m "target" points
+    :return: (m, n_dims) np.array, m vectors in tangent spaces of point0,
+            that would yield point1 if inserted in exponential map
+    '''
+    dot01 = self.metric.dot(point0, point1)
+    v_Tp0M = point1 - dot01 * point0
+    dist = self.distance(point0, point1)
+    norm_v_Tp0M = self.metric.norm(v_Tp0M)
+
+    # If v_Tp0M has zero norm, return the original point.
+    v_Tp0M_is_good = norm_v_Tp0M > finfo(float64).eps
+    # self.is_in_tangent_space(point0, v_Tp0M)
+    return where(
+        v_Tp0M_is_good,
+        v_Tp0M * (dist / norm_v_Tp0M),
+        v_Tp0M,
+    )
