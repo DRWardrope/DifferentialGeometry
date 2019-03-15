@@ -1,4 +1,4 @@
-from numpy import zeros_like
+from numpy import finfo, float64, where, zeros_like
 
 class Manifold:
     '''
@@ -12,6 +12,15 @@ class Manifold:
         '''
         self.n_dims = n_dims
         self.metric = None
+
+    def distance(self, u, v):
+        '''
+        Calculate the distance on the manifold between two points.
+        Check if point on manifold, then insist on mini
+        :param u, v:, (m, n_dims) np.arrays, each representing m vectors:
+        :return: (m, 1) dimensional np.array, the distance between u and v
+        '''
+        raise NotImplementedError("Should be implemented by subclass")
 
     def exponential_map(self, point, v_TpS):
         '''
@@ -37,15 +46,20 @@ class Manifold:
         :return: (m, n_dims) np.array, m vectors in tangent spaces of point0,
                 that would yield point1 if inserted in exponential map
         '''
+        print("point0 = ", point0)
+        print("point1 = ", point1)
         dot01 = self.metric.dot(point0, point1)
         v_Tp0M = point1 - dot01*point0
+        print("v_Tp0M = ", v_Tp0M)
         dist = self.distance(point0, point1)
+        print("dist = ", dist)
         norm_v_Tp0M = self.metric.norm(v_Tp0M)
+        print("||v_Tp0M|| = ", norm_v_Tp0M)
 
         # If v_TpS has zero norm, return the original point.
         # Correct behaviour and avoids division by zero in following calculation
         return where(
-                        norm_v_Tp0M < finfo(float).eps,
+                        norm_v_Tp0M < finfo(float64).eps,
                         v_Tp0M,
                         v_Tp0M*dist/norm_v_Tp0M,
                      )

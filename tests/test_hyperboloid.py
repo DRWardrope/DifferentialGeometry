@@ -2,46 +2,6 @@ from hyperboloid import Hyperboloid
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 
-def test_distance():
-    u = np.array([
-                    [np.cosh(0.), np.sinh(0.)],
-                    [np.cosh(0.5), np.sinh(0.5)],
-                    [np.cosh(10.), np.sinh(10.)]
-                ])
-    v = np.array([
-                    [np.cosh(0.5), np.sinh(0.5)],
-                    [np.cosh(0.5), np.sinh(0.5)],
-                    [np.cosh(0.5), np.sinh(0.5)]
-                ])
-    expected = np.array([[0.5], [0.], [9.5]])
-
-    hyperb = Hyperboloid(1)
-    assert_array_almost_equal(hyperb.distance(u, v), expected)
-
-# def test_project_to_tangent_space():
-#     p = np.array([
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.5*np.pi), np.sinh(0.5*np.pi)],
-#                     [np.cosh(np.pi), np.sinh(np.pi)]
-#                 ])
-#     v = np.array([
-#                     [0., 0.],
-#                     [1., 0.],
-#                     [1., 1.],
-#                     [1., 1.],
-#                     [1., 1.]
-#     ])
-#     expected = np.array([
-#                     [0., 0.],
-#                     [0., 0.],
-#                     [0., 1.],
-#                     [1., 0.],
-#                     [0., 1.]
-#     ])
-#     hyperb = Hyperboloid(1)
-#     assert_array_almost_equal(hyperb.project_to_tangent_space(p, v), expected)
 
 def test_is_on_manifold():
     p = np.array([
@@ -63,71 +23,112 @@ def test_is_on_manifold():
     hyperb = Hyperboloid(1)
     assert_array_almost_equal(hyperb.is_on_manifold(p), expected)
 
-# def test_is_in_tangent_space():
-#     p = np.array([
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.25*np.pi), np.sinh(0.25*np.pi)],
-#                     [np.cosh(0.25 * np.pi), np.sinh(0.25 * np.pi)],
-#                 ])
-#     v = np.array([
-#                     [0., 0.],
-#                     [1., 0.],
-#                     [0., 1.],
-#                     [0., -1.],
-#                     [1., 1.],
-#                     [0.707106781186548,-0.707106781186548]
-#     ])
-#     expected = np.array([
-#                     [True],
-#                     [False],
-#                     [True],
-#                     [True],
-#                     [False],
-#                     [True],
-#     ])
-#     hyperb = Hyperboloid(1)
-#     assert_array_almost_equal(hyperb.is_in_tangent_space(p, v), expected)
-#
-# def test_exponential_map():
-#     p = np.array([
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.5*np.pi), np.sinh(0.5*np.pi)],
-#                     [np.cosh(np.pi), np.sinh(np.pi)]
-#                 ])
-#     v = np.array([
-#                         [0.,         0.],
-#                         [0.,         0.25*np.pi],
-#                         [0.25*np.pi, 0.],
-#                         [0.,         0.25*np.pi]
-#     ])
-#     expected = np.array([
-#                     [1., 0.],
-#                     [0.707106781186548, 0.707106781186548],
-#                     [0.707106781186548, 0.707106781186548],
-#                     [-0.707106781186548, 0.707106781186548]
-#     ])
-#     hyperb = Hyperboloid(1)
-#     print("")
-#     print(hyperb.exponential_map(p, v))
-#     print(expected)
-#     assert_array_almost_equal(hyperb.exponential_map(p, v), expected)
-#
+def test_distance():
+    u = np.array([
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.5), np.sinh(0.5)],
+        [np.cosh(10.), np.sinh(10.)]
+    ])
+    v = np.array([
+        [np.cosh(0.5), np.sinh(0.5)],
+        [np.cosh(0.5), np.sinh(0.5)],
+        [np.cosh(0.5), np.sinh(0.5)]
+    ])
+    expected = np.array([[0.5], [0.], [9.5]])
+
+    hyperb = Hyperboloid(1)
+    assert_array_almost_equal(hyperb.distance(u, v), expected)
+
+
+def test_is_in_tangent_space():
+    p = np.array([
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.5 * np.pi), np.sinh(0.5 * np.pi)],
+        [np.cosh(np.pi), np.sinh(np.pi)],
+    ])
+    v = np.array([
+        [0., 0.],
+        [1., 0.],
+        [0., 1.],
+        [0., -1.],
+        [0.478393040868114, 0.521606959131886],
+        [0.499066278634146, 0.500933721365854]
+    ])
+    expected = np.array([
+        [True],
+        [False],
+        [True],
+        [True],
+        [False],
+        [True],
+    ])
+    hyperb = Hyperboloid(1)
+    assert_array_almost_equal(hyperb.is_in_tangent_space(p, v), expected)
+
+def test_project_to_tangent_space():
+    p = np.array([
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.), np.sinh(0.)],
+        [np.cosh(0.5*np.pi), np.sinh(0.5*np.pi)],
+        [np.cosh(np.pi), np.sinh(np.pi)]
+    ])
+    v = np.array([
+        [0., 0.],
+        [1., 0.],
+        [1., 1.],
+        [1., 1.],
+        [1., 1.]
+    ])
+    expected = np.array([
+        [0., 0.],
+        [0., 0.],
+        [0., 1.],
+        [0.478393040868114, 0.521606959131886],
+        [0.499066278634146, 0.500933721365854]
+    ])
+    hyperb = Hyperboloid(1)
+    assert_array_almost_equal(hyperb.project_to_tangent_space(p, v), expected)
+
+def test_exponential_map():
+    p = np.array([
+                    [np.cosh(0.), np.sinh(0.)],
+                    [np.cosh(0.), np.sinh(0.)],
+                    [np.cosh(0.5*np.pi), np.sinh(0.5*np.pi)],
+                     [np.cosh(np.pi), np.sinh(np.pi)]
+                ])
+    v = np.array([
+                    [0.,         0.],
+                    [0.,         0.25*np.pi],
+                    [0.478393040868114, 0.521606959131886],
+             #       [0.499066278634146, 0.500933721365854]
+    ])
+    expected = np.array([
+                    [1., 0.],
+                    [1.324609089252006, 0.86867096148601],
+                    [3.04543575, 2.87657416],
+    ])
+    hyperb = Hyperboloid(1)
+    print("")
+    print(hyperb.exponential_map(p, v))
+    print(expected)
+    assert_array_almost_equal(hyperb.exponential_map(p, v), expected)
+
 # def test_logarithmic_map():
 #     p0 = np.array([
 #                     [np.cosh(0.), np.sinh(0.)],
 #                     [np.cosh(0.), np.sinh(0.)],
-#                     [np.cosh(0.5*np.pi), np.sinh(0.5*np.pi)],
-#                     [np.cosh(np.pi), np.sinh(np.pi)]
+#                     [np.cosh(1), np.sinh(1)],
+#                     [np.cosh(1), np.sinh(1)],
 #                 ])
 #     p1 = np.array([
-#                     [1., 0.],
-#                     [0.707106781186548, 0.707106781186548],
-#                     [0.707106781186548, 0.707106781186548],
-#                     [-0.707106781186548, 0.707106781186548]
+#                     [np.cosh(0.), np.sinh(0.)],
+#                     [np.cosh(1.), np.sinh(1.)],
+#                     [np.cosh(-1.), np.sinh(-1.)],
+#                     [np.cosh(-np.pi), np.sinh(-np.pi)]
 #     ])
 #     expected = np.array([
 #                         [0.,         0.],
@@ -141,7 +142,7 @@ def test_is_on_manifold():
 #     print(hyperb.logarithmic_map(p0, p1))
 #     print(expected)
 #     assert_array_almost_equal(hyperb.logarithmic_map(p0, p1), expected)
-#
+
 # def test__pole_ladder_transport():
 #     p0 = np.array([
 #                     [np.cosh(0.), np.sinh(0.)],
