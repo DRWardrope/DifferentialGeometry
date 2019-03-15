@@ -1,5 +1,4 @@
-#from numpy import diag, eye,
-from numpy import einsum, eye, reshape
+from numpy import einsum, eye, reshape, sqrt
 
 class Metric:
     '''
@@ -21,7 +20,14 @@ class Metric:
             :returns m, 1) u.v
         '''
         return reshape(einsum("ij,ai,aj->a", self.metric, u, v), (-1, 1))
-#        return reshape(diag(u.T.dot(self.metric.dot(v))), (-1, 1))
+
+    def norm(self, u):
+        '''
+        Calculate the norm of u
+        :param u: (m, n_dims) np.array, representing m vectors:
+        :return: (m, 1) dimensional np.array, representing the norm of u
+        '''
+        return sqrt(self.dot(u, u))
 
 
 class EuclideanMetric(Metric):

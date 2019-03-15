@@ -34,3 +34,16 @@ def test_dot():
     expected = np.array([[0.], [0.],[0.]])
     assert_array_almost_equal(eta.dot(u, v), expected)
 
+def test_norm():
+    v = np.vstack([np.zeros([1, 2]), np.ones([1,2]), -1.*np.ones([1,2])])
+
+    g = EuclideanMetric(2)
+    expected = np.array([[0.], [np.sqrt(2.)], [np.sqrt(2.)]])
+    print("")
+    print(v)
+    assert_array_almost_equal(g.norm(v), expected)
+
+    eta = MinkowskiMetric(2)
+    expected = np.array([[0.], [0.],[0.]])
+    assert_array_almost_equal(eta.norm(v), expected)
+

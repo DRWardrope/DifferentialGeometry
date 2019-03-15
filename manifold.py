@@ -32,13 +32,23 @@ class Manifold:
         '''
         Inverse of exponential map
 
-        :param point0: (m, n_dims+1) np.array, representing m "base" points:
-        :param point1: (m, n_dims+1) np.array, representing m "target" points
-        :return: (m, n_dims+1) np.array, m vectors in tangent spaces of point0,
+        :param point0: (m, n_dims) np.array, representing m "base" points:
+        :param point1: (m, n_dims) np.array, representing m "target" points
+        :return: (m, n_dims) np.array, m vectors in tangent spaces of point0,
                 that would yield point1 if inserted in exponential map
         '''
-        raise NotImplementedError("Should be implemented by subclass")
+        dot01 = self.metric.dot(point0, point1)
+        v_Tp0M = point1 - dot01*point0
+        dist = self.distance(point0, point1)
+        norm_v_Tp0M = self.metric.norm(v_Tp0M)
 
+        # If v_TpS has zero norm, return the original point.
+        # Correct behaviour and avoids division by zero in following calculation
+        return where(
+                        norm_v_Tp0M < finfo(float).eps,
+                        v_Tp0M,
+                        v_Tp0M*dist/norm_v_Tp0M,
+                     )
     def is_on_manifold(self, point):
         '''
         Determine whether point is in the set of manifold points
@@ -59,10 +69,25 @@ class Manifold:
         dot_pv = self.metric.dot(point, vector)
         return dot_pv == zeros_like(dot_pv)
 
+    def project_to_tangent_space(self, point, vector):
+        '''
+        Project vector into tangent space of point.
+        Since point is on hypersphere of radius 1, point.point = +1
+        :param point:  (m, n_dims) np.array, representing m points on the
+                        hypersphere:
+        :param vector: (m, n_dims) np.array, representing m vectors in ]
+                        (n+1)-dimensional ambient space
+        :return: (m, n_dims) np.array, representing m vectors projected to
+                tangent spaces of point
+        '''
+        dot_ratio = self.metric.dot(point, vector)/self.metric.dot(point, point)
+        return vector - dot_ratio*point
+
     def _pole_ladder_transport(self, vec_Tp0M, point_0, point_1):
         '''
-            Parallel transport of vector in tangent space of point 0 to point 1
-            using pole ladder algorithm defined in arxiv:1805.11436.
+            Parallel transport of vector in tangent space of point 0 to the
+            tangent space of point 1 using pole ladder algorithm defined in
+            arxiv:1805.11436.
         :param vec_Tp0M: vector to be transported
         :param point_0: initial point where vec_Tp0M
         :param point_1: final point to which vec_Tp0M will be transported
@@ -83,6 +108,15 @@ class Manifold:
         return -self.logarithmic_map(point_1, prime_1)
 
     def parallel_transport(self, vec_Tp0M, point_0, point_1, n_steps = 10):
+        '''
+        Parallel transport vector in tangent space of point 0 (Tp0M) to the tangent
+        space of point 1 (Tp1M).
+        :param vec_Tp0M: (m, n-dims+1) np.array, vector in Tp0M to be transported
+        :param point_0: initial point where vec_Tp0M
+        :param point_1: final point to which vec_Tp0M will be transported
+        :param n_steps: number of steps to break pole transport into
+        :return: vec_Tp0M after parallel transport to point 1
+        '''
         # todo: check whether vector is in tangent space
 
         # Get rows that are actually changing in this batch. The others will stay the same.
