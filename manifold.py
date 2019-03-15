@@ -1,3 +1,5 @@
+from numpy import zeros_like
+
 class Manifold:
     '''
         Base class for (pseudo-)Riemannian manifolds. Assumes n-dimensional
@@ -54,7 +56,8 @@ class Manifold:
         :param vector: (m, n_dims+1) np.array, representing m vectors
         :return: (m, 1) np.array of booleans
         '''
-        raise NotImplementedError("Should be implemented by subclass")
+        dot_pv = self.metric.dot(point, vector)
+        return dot_pv == zeros_like(dot_pv)
 
     def _pole_ladder_transport(self, vec_Tp0M, point_0, point_1):
         '''

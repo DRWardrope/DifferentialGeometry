@@ -43,6 +43,34 @@ def test_project_to_tangent_space():
     circle = Sphere(1)
     assert_array_almost_equal(circle.project_to_tangent_space(p, v), expected)
 
+def test_is_in_tangent_space():
+    p = np.array([
+                    [np.cos(0.), np.sin(0.)],
+                    [np.cos(0.), np.sin(0.)],
+                    [np.cos(0.), np.sin(0.)],
+                    [np.cos(0.), np.sin(0.)],
+                    [np.cos(0.25*np.pi), np.sin(0.25*np.pi)],
+                    [np.cos(0.25 * np.pi), np.sin(0.25 * np.pi)],
+                ])
+    v = np.array([
+                    [0., 0.],
+                    [1., 0.],
+                    [0., 1.],
+                    [0., -1.],
+                    [1., 1.],
+                    [0.707106781186548,-0.707106781186548]
+    ])
+    expected = np.array([
+                    [True],
+                    [False],
+                    [True],
+                    [True],
+                    [False],
+                    [True],
+    ])
+    circle = Sphere(1)
+    assert_array_almost_equal(circle.is_in_tangent_space(p, v), expected)
+
 def test_exponential_map():
     p = np.array([
                     [np.cos(0.), np.sin(0.)],
